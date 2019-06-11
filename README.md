@@ -40,6 +40,10 @@ Example:
     
     python 02-clustering_by_kmers.py -name ccm_x_ath
     
+### Drawbacks
+1. These scripts really only work for 20-24 nt sRNAs and are not optimised nor will function for looking at other size ranges.
+2. Modification of the kmer word-size should be done at your own risk. This may cause loss of sensitivity if you raise it above 10. Lowering the word-size will not have any expected advantages for sRNAs.
+3. **The biology of this is challenging**. This process makes it easier to analyze these reads in a pinch, but is likely collapsing disparate elements together. For example: miRNA paralogs which have a 1-2 nt difference between them would likely be combined as a single miRNA under this method.
     
 ### Required Packages
 1. python-Levenshtein (0.12.0 tested) [https://github.com/ztane/python-Levenshtein/]
