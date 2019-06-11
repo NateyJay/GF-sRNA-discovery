@@ -12,7 +12,7 @@ Reference assemblies overcome this issue by stitching these variants into geneti
 ### Our solution
 To simplify this complex set of sRNAs, this pipeline condenses variants within an edit_distance to the sequence of the most expressed variant, retaining the abundance levels for tissues. This process is divided into two scripts:
 * **01-depth_stacking.py** - Reads in sequence libraries (FASTA), derives abundance for each library for a given read sequence, and then ranks the reads in order of abundance
-* **02-clustering_by_kmers.py** - uses a kmer based approach to cluster reads based on similarity in a greedy manner, working in order of decreasing abundance.
+* **02-clustering_by_kmers.py** - Uses a kmer based approach to cluster reads based on similarity in a greedy manner, working in order of decreasing abundance.
 
 ### Usage
 A standard usage of these scripts runs them in a linear order, first **depth_stacking** followed by **clustering**.
