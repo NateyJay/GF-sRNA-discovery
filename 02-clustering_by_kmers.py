@@ -1,14 +1,9 @@
 import sys
 import os
-# import editdistance
 from tqdm import tqdm
-# import ast
 import Levenshtein
-# import threading
-# import Queue
 import argparse
 import time
-# import operator
 import itertools
 
 
@@ -56,9 +51,10 @@ def find_kmers(seq, k_value):
 	return(kmers)
 
 
+# reading in all reads in sorted and stacked libraries
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sorted_loc = '01out-depth_sorted.%s.txt' % (organismal_suffix)
-
 
 print "Reading in lines..."
 # stale_dict = {}
@@ -71,6 +67,9 @@ lines = lines[1:]
 # lines = lines[:10000]
 total = len(lines)
 # sys.exit()
+
+
+# measures library depth to ascertain the abundance for the RPM cutoff
 
 print "Assessing library depth..."
 
@@ -111,12 +110,17 @@ print ""
 # sys.exit()
 
 
+# here the khash is produced, providing a lookup dictionary for all reads which contain the k-word. 
+# this starts by making a dict entry for every possible k-word.
+
 print "Making empty khash..."
 khash = {}
 DNA = "NATGC"
 for output in itertools.product(DNA, repeat=k_value):
 	kmer = "".join(output)
 	khash[kmer] = []
+
+# finds k-words for all reads and populates khash
 
 times = []
 print "Building hash indexes..."
@@ -132,11 +136,10 @@ for index, line in enumerate(lines):
 	for k in kmers:
 		khash[k].append(index)
 
-
-
-
 pbar.close()
 lookup_lines = list(lines)
+
+# removes khashes which are not found in reads
 
 print "Cleaning-up empty khashes..."
 for key in khash.keys():
@@ -144,11 +147,10 @@ for key in khash.keys():
 	if entry == []:
 		del khash[key]
 
+
+
+
 # This step throughs out al reads with an abundance of less than 5 as a cluster. They can still contribute to clusters, but no cluster may have a most expressed sequence of less than 5 reads. Saves this as a list (centroid candidates).
-
-
-
-
 
 
 print "Clustering by edit distance..."
@@ -219,6 +221,10 @@ for centroid_counter, spline in enumerate(centroid_candidates):
 
 
 pbar.close()
+
+# once the structure of the clustering is found, the program writes 2 documents: 
+# 1) the list of centroids with abundances
+# 2) the list of all reads, with their centroids also indicated
 
 output_loc = '%s/02out-k%s.%s.clustered.txt' % (dir_path, k_value, organismal_suffix)
 with open(output_loc, "w") as f:

@@ -2,6 +2,8 @@ import sys
 import operator
 import argparse
 
+
+# reading in arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-name', nargs='?',required=True)
 parser.add_argument('-lib_files', nargs='+', required=True)
@@ -12,16 +14,13 @@ files = args.lib_files
 libs = args.lib_names
 org = args.name
 
-# print INs
-# print PSs
-# print org
-# sys.exit()
+
 
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-
+# this is the key for counting reads specific to libraries
 def make_key(seq, lib):
 	return("%(seq)s-%(lib)s" % locals())
 
@@ -33,7 +32,8 @@ line_count = 0
 perc_count = 0
 seqs = []
 
-# libs = ["IN1","IN2","IN3","PS1","PS2","PS3"]
+
+# reads through files, maintaining a count of each read for each library
 read_dict = {}
 
 for i, file in enumerate(files):
@@ -59,6 +59,8 @@ for i, file in enumerate(files):
 					read_dict[key] += 1
 
 
+# produces a list of reads and total abundance in all libraries, which is sorted in descending order
+
 print "Sorting by depth..."
 reads = []
 # keys = keynames(read_dict)
@@ -78,6 +80,8 @@ for seq in seqs:
 reads.sort(key=operator.itemgetter(len(reads[0])-1))
 
 
+# initializes and writes the header line of the document
+
 stacked_loc = "{}/01out-depth_sorted.{}.txt".format(dir_path,org)
 with open(stacked_loc, "w") as file:
 	header = ["read","seq"]
@@ -88,6 +92,7 @@ with open(stacked_loc, "w") as file:
 	print >> file, "\t".join(header)
 
 
+# processes through lines, retaining reads 20-24 in length and printing their abundances to a file
 total = len(reads)
 print "  {} lines to process".format(total)
 perc_count = 0
