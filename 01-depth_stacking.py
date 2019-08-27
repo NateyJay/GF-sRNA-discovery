@@ -23,7 +23,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # this is the key for counting reads specific to libraries
 def make_key(seq, lib):
-	return("%(seq)s-%(lib)s" % locals())
+	return((seq, lib))
+	# return("%(seq)s-%(lib)s" % locals())
 
 print "Processing:", org
 print "Parsing to dict..."
@@ -33,6 +34,8 @@ line_count = 0
 perc_count = 0
 seqs = []
 
+acceptable_sizes = set([20,21,22,23,24])
+
 
 # reads through files, maintaining a count of each read for each library
 read_dict = {}
@@ -41,23 +44,29 @@ for i, file in enumerate(files):
 	lib = libs[i]
 	print "  Reading:", lib, file
 
+	new_key_count = 0
+
 	with open(file, "r") as f:
 		for line in f:
 
 			if line[0] != ">":
 				seq = line.strip()
+
+				if len(seq) in acceptable_sizes:
 				
-				key = make_key(seq, lib)
+					key = make_key(seq, i)
 
-				try:
-					read_dict[key] += 1
+					try:
+						read_dict[key] += 1
 
-				except KeyError:	
-					for i in libs:
-						new_key = make_key(seq, i)
-						read_dict[new_key] = 0
-					seqs.append(seq)
-					read_dict[key] += 1
+					except KeyError:	
+						new_key_count += 1
+						# for i in libs:
+						# 	new_key = make_key(seq, i)
+						# 	read_dict[new_key] = 0
+						seqs.append(seq)
+						read_dict[key] = 1
+	print "  {:,} new keys added".format(new_key_count)
 
 
 # produces a list of reads and total abundance in all libraries, which is sorted in descending order
@@ -68,9 +77,15 @@ reads = []
 for seq in seqs:
 	entry = [seq]
 	abd = 0
-	for lib in libs:
-		key = make_key(seq, lib)
-		lib_abd = read_dict[key]
+	for i, lib in enumerate(libs):
+		
+		key = make_key(seq, i)
+
+		try:
+			lib_abd = read_dict[key]
+			del read_dict[key]
+		except KeyError:
+			lib_abd = 0
 
 		entry.append(lib_abd)
 		abd += lib_abd
